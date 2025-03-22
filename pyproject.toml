@@ -1,8 +1,15 @@
 [project]
 name = "apple"
 version = "0.1.0"
-description = "Add your description here"
+description = "Backend for Apple.com inspired site"
 requires-python = ">=3.13"
 dependencies = [
     "django>=5.1.7",
+    "djangorestframework>=3.15.0",
+    "Pillow>=10.2.0", # For image handling
+    "django-cors-headers>=4.3.1", # For handling CORS
+    "python-dotenv>=1.0.1", # For environment variables
+    "psycopg2>=2.9.10",
+    "django-filter>=25.1",
+    "djangorestframework-simplejwt>=5.5.0",
 ]
