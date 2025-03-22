@@ -1,3 +1,5 @@
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -11,7 +13,7 @@ from .serializers import (
     CartSerializer, CartItemSerializer,
     OrderSerializer, OrderCreateSerializer
 )
-
+from api.swagger import cart_swagger_schema, order_create_swagger_schema
 
 class CartViewSet(viewsets.GenericViewSet):
     serializer_class = CartSerializer
@@ -25,12 +27,31 @@ class CartViewSet(viewsets.GenericViewSet):
     def get_object(self):
         return self.get_queryset().first()
 
+    @swagger_auto_schema(
+        operation_description="Get the current user's shopping cart",
+        operation_summary="Get Cart",
+        tags=['Cart']
+    )
     def retrieve(self, request):
         """Get current user's cart"""
         cart = self.get_object()
         serializer = CartSerializer(cart)
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        operation_description="Add an item to the cart",
+        operation_summary="Add Item to Cart",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['product_id'],
+            properties={
+                'product_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                'variant_id': openapi.Schema(type=openapi.TYPE_INTEGER, nullable=True),
+                'quantity': openapi.Schema(type=openapi.TYPE_INTEGER, default=1),
+            }
+        ),
+        tags=['Cart']
+    )
     @action(detail=False, methods=['post'])
     def add_item(self, request):
         """Add item to cart"""
@@ -135,6 +156,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
 
+    @order_create_swagger_schema
     def create(self, request):
         """Create a new order from cart"""
         serializer = OrderCreateSerializer(data=request.data)

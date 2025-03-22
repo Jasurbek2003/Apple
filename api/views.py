@@ -1,4 +1,6 @@
 from django.db.models import Q
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -67,6 +69,40 @@ class CurrentLanguageView(APIView):
 class SetLanguageView(APIView):
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(
+        operation_description="Set the language for the current session",
+        operation_summary="Set Language",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['language'],
+            properties={
+                'language': openapi.Schema(type=openapi.TYPE_STRING),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Language set successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'code': openapi.Schema(type=openapi.TYPE_STRING),
+                        'name': openapi.Schema(type=openapi.TYPE_STRING),
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Invalid language code",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(type=openapi.TYPE_STRING),
+                    }
+                )
+            )
+        }
+
+
+    )
     def post(self, request):
         """
         Set the language for the current session
@@ -101,9 +137,11 @@ class SetLanguageView(APIView):
 
         # If user is authenticated, update their profile
         if request.user.is_authenticated:
+            print(request.user.profile)
             try:
                 profile = request.user.profile
                 profile.language = lang_code
+                print(profile.__dict__)
                 profile.save(update_fields=['language'])
             except:
                 pass

@@ -12,4 +12,5 @@ dependencies = [
     "psycopg2>=2.9.10",
     "django-filter>=25.1",
     "djangorestframework-simplejwt>=5.5.0",
+    "drf-yasg>=1.21.10",
 ]
