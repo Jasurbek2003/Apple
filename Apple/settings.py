@@ -52,8 +52,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'drf_yasg',
-    'sslserver',
-
 
     # Local apps
     'api.apps.ApiConfig',

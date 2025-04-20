@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-22 05:30+0500\n"
+"POT-Creation-Date: 2025-03-22 06:31+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,19 +17,28 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-#: .\Apple\settings.py:174
+
+#: .\Apple\settings.py:182
 msgid "English"
 msgstr ""
 
-#: .\Apple\settings.py:175
+#: .\Apple\settings.py:183
 msgid "Russian"
 msgstr ""
 
-#: .\Apple\settings.py:176
+#: .\Apple\settings.py:184
 msgid "Uzbek"
 msgstr ""
 
-#: .\Apple\urls.py:17
+#: .\Apple\swagger.py:10
+msgid "Apple Store API"
+msgstr ""
+
+#: .\Apple\swagger.py:12
+msgid "API documentation for Apple Store project"
+msgstr ""
+
+#: .\Apple\urls.py:19
 msgid "admin/"
 msgstr ""
 
@@ -37,15 +46,87 @@ msgstr ""
 msgid "API"
 msgstr ""
 
-#: .\api\views.py:21
+#: .\api\swagger.py:7
+msgid "JWT token pair"
+msgstr ""
+
+#: .\api\swagger.py:11
+msgid "JWT access token"
+msgstr ""
+
+#: .\api\swagger.py:12
+msgid "JWT refresh token"
+msgstr ""
+
+#: .\api\swagger.py:61
+msgid "Obtain JWT token pair by providing username and password."
+msgstr ""
+
+#: .\api\swagger.py:62
+msgid "Login"
+msgstr ""
+
+#: .\api\swagger.py:70
+msgid "List all products with filtering options."
+msgstr ""
+
+#: .\api\swagger.py:71
+msgid "List Products"
+msgstr ""
+
+#: .\api\swagger.py:76
+msgid "Filter by category slug"
+msgstr ""
+
+#: .\api\swagger.py:82
+msgid "Filter by new products"
+msgstr ""
+
+#: .\api\swagger.py:88
+msgid "Filter by featured products"
+msgstr ""
+
+#: .\api\swagger.py:94
+msgid "Search in name, description and SKU"
+msgstr ""
+
+#: .\api\swagger.py:99 .\api\swagger.py:122
+msgid "Successful response"
+msgstr ""
+
+#: .\api\swagger.py:119
+msgid "Get the current user's shopping cart."
+msgstr ""
+
+#: .\api\swagger.py:120
+msgid "Get Cart"
+msgstr ""
+
+#: .\api\swagger.py:131
+msgid "Create a new order from the items in the cart."
+msgstr ""
+
+#: .\api\swagger.py:132
+msgid "Create Order"
+msgstr ""
+
+#: .\api\swagger.py:145
+msgid "Order created successfully"
+msgstr ""
+
+#: .\api\swagger.py:149
+msgid "Bad request - Cart is empty or invalid data"
+msgstr ""
+
+#: .\api\views.py:23
 msgid "Welcome to the Apple-inspired API"
 msgstr ""
 
-#: .\api\views.py:80
+#: .\api\views.py:116
 msgid "Invalid language code"
 msgstr ""
 
-#: .\api\views.py:146
+#: .\api\views.py:184
 msgid "Search query must be at least 2 characters"
 msgstr ""
 
@@ -221,22 +302,22 @@ msgstr ""
 msgid "Order Items"
 msgstr ""
 
-#: .\orders\views.py:79 .\orders\views.py:108
+#: .\orders\views.py:100 .\orders\views.py:129
 msgid "Item ID is required"
 msgstr ""
 
-#: .\orders\views.py:96 .\orders\views.py:119
+#: .\orders\views.py:117 .\orders\views.py:140
 msgid "Item not found in cart"
 msgstr ""
 
-#: .\orders\views.py:148 .\orders\views.py:153
+#: .\orders\views.py:170 .\orders\views.py:175
 msgid "Your cart is empty"
 msgstr ""
 
-#: .\orders\views.py:220
+#: .\orders\views.py:242
 msgid "This order cannot be cancelled"
 msgstr ""
 
-#: .\orders\views.py:228
+#: .\orders\views.py:250
 msgid "Order cancelled successfully"
 msgstr ""
