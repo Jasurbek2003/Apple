@@ -9,9 +9,17 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    variant_name = serializers.ReadOnlyField(source='variant.name', default=None)
+    variant_id = serializers.PrimaryKeyRelatedField(
+        queryset=ProductVariant.objects.all(),
+        source='variant',
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = ProductImage
-        fields = ['id', 'image', 'alt_text', 'is_primary']
+        fields = ['id', 'image', 'alt_text', 'is_primary', 'variant_id', 'variant_name']
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
@@ -38,9 +46,10 @@ class ProductListSerializer(serializers.ModelSerializer):
         return None
 
 
+# products/serializers.py
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
-    images = ProductImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     variants = ProductVariantSerializer(many=True, read_only=True)
 
     class Meta:
@@ -51,3 +60,24 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'is_featured', 'in_stock', 'stock_qty', 'images',
             'variants', 'created_at', 'updated_at'
         ]
+
+    def get_images(self, obj):
+        # Group images - general product images and variant-specific images
+        result = {
+            'default': ProductImageSerializer(
+                obj.images.filter(variant__isnull=True),
+                many=True
+            ).data,
+            'variants': {}
+        }
+
+        # Add variant-specific images
+        for variant in obj.variants.all():
+            variant_images = obj.images.filter(variant=variant)
+            if variant_images.exists():
+                result['variants'][variant.id] = {
+                    'name': variant.name,
+                    'images': ProductImageSerializer(variant_images, many=True).data
+                }
+
+        return result

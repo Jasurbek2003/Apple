@@ -46,14 +46,31 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
+
+
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)  # e.g., "Pro", "Pro max"
+    price_adjustment = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.name}"
+
+
+class ProductVariantColor(models.Model):
+    product_variant = models.ForeignKey(ProductVariant, related_name='colors', on_delete=models.CASCADE)
+    color_name = models.CharField(max_length=50)
+    color_code = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f"{self.product_variant.name} - {self.color_name} ({self.color_code})"
 
 
 class ProductImage(models.Model):
-    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
+    product_variant_color = models.ForeignKey(ProductVariantColor, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products/')
     alt_text = models.CharField(max_length=200, blank=True)
     is_primary = models.BooleanField(default=False)
@@ -63,17 +80,22 @@ class ProductImage(models.Model):
         ordering = ['is_primary', 'created_at']
 
     def __str__(self):
-        return f"Image for {self.product.name}"
+        variant_text = f" ({self.product_variant_color.name})" if self.product_variant_color else ""
+        return f"Image for {self.product_variant_color.name}{variant_text}"
 
 
-class ProductVariant(models.Model):
-    product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)  # e.g., "Space Gray", "256GB"
-    sku = models.CharField(max_length=20, unique=True)
+class ProductVariantStorage(models.Model):
+    product_variant = models.ForeignKey(ProductVariant, related_name='storage', on_delete=models.CASCADE)
+    storage_capacity = models.CharField(max_length=50)
     price_adjustment = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    stock_qty = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.product.name} - {self.name}"
+        return f"{self.product_variant.name} - {self.storage_capacity}"
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = 'Product Variant Storage'
+        unique_together = ('product_variant', 'storage_capacity')
