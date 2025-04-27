@@ -70,6 +70,8 @@ class ProductVariant(models.Model):
     description = HTMLField(blank=True, null=True)  # Using TinyMCE HTMLField
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    main_image = models.ImageField(upload_to='products/variants/', blank=True, null=True)
+
 
     def __str__(self):
         return f"{self.product.name} - {self.name}"
