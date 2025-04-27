@@ -4,6 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
 from django.utils.translation import gettext_lazy as _
+
+from products.views import tinymce_image_upload
 from .swagger import swagger_urlpatterns
 
 urlpatterns = [
@@ -18,6 +20,7 @@ urlpatterns = [
 # URLs with language prefix
 urlpatterns += i18n_patterns(
     path(_('admin/'), admin.site.urls),
+    path('admin/tinymce/upload/', tinymce_image_upload, name='tinymce_upload_api'),
     prefix_default_language=False,
 )
 

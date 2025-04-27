@@ -1,16 +1,59 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Category, Product, ProductVariant, ProductVariantColor, ProductImage, ProductVariantStorage
+from django import forms
+from tinymce.widgets import TinyMCE
+from .models import (
+    Category,
+    Product,
+    ProductVariant,
+    ProductVariantColor,
+    ProductImage,
+    ProductVariantStorage
+)
 
 
+# Custom forms with TinyMCE widgets
+class CategoryAdminForm(forms.ModelForm):
+    description = forms.CharField(
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 20}),
+        required=False
+    )
+
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
+class ProductAdminForm(forms.ModelForm):
+    description = forms.CharField(
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 30})
+    )
+
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+
+class ProductVariantAdminForm(forms.ModelForm):
+    description = forms.CharField(
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 20}),
+        required=False
+    )
+
+    class Meta:
+        model = ProductVariant
+        fields = '__all__'
+
+
+# Inlines
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
-    fields = ['image', 'product_variant_color', 'alt_text', 'is_primary', 'image_preview']
+    fields = ['image', 'alt_text', 'is_primary', 'image_preview']
     readonly_fields = ['image_preview']
 
     def image_preview(self, obj):
-        if obj.image and obj.image.url:
+        if obj.image and hasattr(obj.image, 'url'):
             return format_html('<img src="{}" width="100" height="auto" />', obj.image.url)
         return "No image"
 
@@ -42,44 +85,84 @@ class ProductVariantStorageInline(admin.TabularInline):
 
 class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
+    form = ProductVariantAdminForm
     extra = 1
     fields = ['name', 'price_adjustment', 'is_active', 'description']
 
 
+# Main ModelAdmin classes
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'is_active', 'created_at']
+    form = CategoryAdminForm
+    list_display = ['name', 'is_active', 'created_at', 'description_preview']
     list_filter = ['is_active']
-    search_fields = ['name']
+    search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
+
+    def description_preview(self, obj):
+        if obj.description:
+            preview = obj.description[:50] + '...' if len(obj.description) > 50 else obj.description
+            return format_html(preview)
+        return "-"
+
+    description_preview.short_description = 'Description Preview'
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'slug', 'is_active'),
+        }),
+        ('Content', {
+            'fields': ('description',),
+            'classes': ('wide',),
+        }),
+        ('Media', {
+            'fields': ('image', 'video'),
+        }),
+    )
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'is_new', 'created_at']
-    list_filter = ['category', 'is_new']
-    search_fields = ['name', 'description']
+    form = ProductAdminForm
+    list_display = ['name', 'category', 'price', 'is_new', 'is_featured', 'is_active', 'created_at',
+                    'description_preview']
+    list_filter = ['category', 'is_new', 'is_featured', 'is_active']
+    search_fields = ['name', 'description', 'sku']
+    prepopulated_fields = {'slug': ('name',)}
     inlines = [ProductVariantInline]
+
+    def description_preview(self, obj):
+        if obj.description:
+            preview = obj.description[:50] + '...' if len(obj.description) > 50 else obj.description
+            return format_html(preview)
+        return "-"
+
+    description_preview.short_description = 'Description Preview'
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'category', 'price')
+            'fields': ('name', 'slug', 'sku', 'category', 'price', 'sale_price'),
         }),
-        ('Description', {
-            'fields': ('description', 'tech_specs'),
+        ('Content', {
+            'fields': ('description',),
+            'classes': ('wide', 'extrapretty'),
+        }),
+        ('Technical Details', {
+            'fields': ('tech_specs',),
             'classes': ('collapse',),
         }),
         ('Status', {
-            'fields': ('is_new',)
+            'fields': ('is_new', 'is_featured', 'is_active', 'in_stock', 'stock_qty'),
         }),
     )
 
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ['get_product_name', 'name', 'price_adjustment', 'is_active']
+    form = ProductVariantAdminForm
+    list_display = ['get_product_name', 'name', 'price_adjustment', 'is_active', 'description_preview']
     list_filter = ['is_active', 'product__category']
-    search_fields = ['name', 'product__name']
+    search_fields = ['name', 'description', 'product__name']
     inlines = [ProductVariantColorInline, ProductVariantStorageInline]
 
     def get_product_name(self, obj):
@@ -87,12 +170,21 @@ class ProductVariantAdmin(admin.ModelAdmin):
 
     get_product_name.short_description = 'Product'
 
+    def description_preview(self, obj):
+        if obj.description:
+            preview = obj.description[:50] + '...' if len(obj.description) > 50 else obj.description
+            return format_html(preview)
+        return "-"
+
+    description_preview.short_description = 'Description Preview'
+
     fieldsets = (
         ('Variant Information', {
-            'fields': ('product', 'name', 'price_adjustment', 'is_active')
+            'fields': ('product', 'name', 'price_adjustment', 'is_active'),
         }),
         ('Description', {
             'fields': ('description',),
+            'classes': ('wide',),
         }),
     )
 
@@ -103,6 +195,7 @@ class ProductVariantColorAdmin(admin.ModelAdmin):
     list_filter = ['product_variant__product__category', 'product_variant']
     search_fields = ['color_name', 'product_variant__name', 'product_variant__product__name']
     readonly_fields = ['color_preview']
+    inlines = [ProductImageInline]
 
     def get_product(self, obj):
         return obj.product_variant.product.name
@@ -127,26 +220,25 @@ class ProductVariantColorAdmin(admin.ModelAdmin):
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
-    list_display = ['get_product', 'get_color', 'is_primary', 'image_preview']
+    list_display = ['get_product', 'get_variant', 'get_color', 'is_primary', 'image_preview']
     list_filter = ['is_primary', 'product_variant_color__product_variant__product__category']
     search_fields = ['alt_text', 'product_variant_color__color_name',
+                     'product_variant_color__product_variant__name',
                      'product_variant_color__product_variant__product__name']
     readonly_fields = ['image_preview']
 
     def get_product(self, obj):
-        # There seems to be a mismatch in your models - ProductImage has product_variant_color as ForeignKey to Product
-        # This needs to be fixed in models.py, but I'll handle it gracefully here
-        if hasattr(obj.product_variant_color, 'product_variant'):
-            return obj.product_variant_color.product_variant.product.name
-        return obj.product_variant_color.name  # Assuming this is actually a Product
+        return obj.product_variant_color.product_variant.product.name
 
     get_product.short_description = 'Product'
 
+    def get_variant(self, obj):
+        return obj.product_variant_color.product_variant.name
+
+    get_variant.short_description = 'Variant'
+
     def get_color(self, obj):
-        # Same issue as above
-        if hasattr(obj.product_variant_color, 'color_name'):
-            return obj.product_variant_color.color_name
-        return "N/A"  # If product_variant_color is actually a Product
+        return obj.product_variant_color.color_name
 
     get_color.short_description = 'Color'
 

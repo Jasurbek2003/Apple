@@ -12,10 +12,6 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 if not SECRET_KEY:
@@ -35,6 +31,13 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1"
+    'http://209.38.109.8',
+]
 
 
 # Application definition
@@ -247,5 +250,42 @@ REDOC_SETTINGS = {
     'PATH_IN_MIDDLE': False,
 }
 
-TINYMCE_JS_ROOT = os.path.join(BASE_DIR, "tinymce")
-TINYMCE_COMPRESSOR = True
+# TinyMCE Configuration
+# TinyMCE settings with image upload capability
+TINYMCE_DEFAULT_CONFIG = {
+    'height': 360,
+    'width': 'auto',
+    'cleanup_on_startup': True,
+    'custom_undo_redo_levels': 25,
+    'selector': 'textarea',
+    'theme': 'silver',
+    'plugins': '''
+        textcolor save link image imagetools media preview codesample contextmenu
+        table code lists fullscreen insertdatetime nonbreaking
+        contextmenu directionality searchreplace wordcount visualblocks
+        visualchars code fullscreen autolink lists charmap print hr
+        anchor pagebreak
+        ''',
+    'toolbar1': '''
+        fullscreen preview bold italic underline | fontselect,
+        fontsizeselect | forecolor backcolor | alignleft alignright |
+        aligncenter alignjustify | indent outdent | bullist numlist table |
+        | link image media | codesample | visualblocks visualchars |
+        charmap hr pagebreak nonbreaking anchor | code |
+        ''',
+    'contextmenu': 'formats | link image',
+    'menubar': True,
+    'statusbar': True,
+
+    'image_advtab': True,
+    'images_upload_url': '/admin/tinymce/upload/',  # Should match the URL pattern
+    'automatic_uploads': True,
+    'file_picker_types': 'image',
+    'images_reuse_filename': False,
+    'relative_urls': False,
+    'remove_script_host': False,
+    'convert_urls': False,
+}
+
+# Define where uploaded images will be stored
+TINYMCE_UPLOAD_PATH = 'uploads/tinymce/'

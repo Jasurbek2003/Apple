@@ -1,83 +1,116 @@
+# products/serializers.py
 from rest_framework import serializers
-from .models import Category, Product, ProductImage, ProductVariant
+from django.utils.html import strip_tags
+from .models import (
+    Category,
+    Product,
+    ProductVariant,
+    ProductVariantColor,
+    ProductImage,
+    ProductVariantStorage
+)
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    description_plain = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = ['id', 'name', 'slug', 'description', 'image', 'is_active', 'video']
+        fields = ['id', 'name', 'slug', 'description', 'description_plain', 'image', 'video', 'is_active']
+
+    def get_description_plain(self, obj):
+        """Return plain text version of the description (without HTML)"""
+        return strip_tags(obj.description) if obj.description else ""
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
-    variant_name = serializers.ReadOnlyField(source='variant.name', default=None)
-    variant_id = serializers.PrimaryKeyRelatedField(
-        queryset=ProductVariant.objects.all(),
-        source='variant',
-        required=False,
-        allow_null=True
-    )
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductImage
-        fields = ['id', 'image', 'alt_text', 'is_primary', 'variant_id', 'variant_name']
+        fields = ['id', 'image', 'image_url', 'alt_text', 'is_primary']
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return self.context['request'].build_absolute_uri(obj.image.url)
+        return None
+
+
+class ProductVariantStorageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductVariantStorage
+        fields = ['id', 'storage_capacity', 'price_adjustment', 'is_active']
+
+
+class ProductVariantColorSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ProductVariantColor
+        fields = ['id', 'color_name', 'color_code', 'images']
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
+    colors = ProductVariantColorSerializer(many=True, read_only=True)
+    storage = ProductVariantStorageSerializer(many=True, read_only=True)
+    description_plain = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductVariant
-        fields = ['id', 'name', 'price_adjustment', 'is_active']
+        fields = ['id', 'name', 'price_adjustment', 'description', 'description_plain',
+                  'is_active', 'colors', 'storage']
+
+    def get_description_plain(self, obj):
+        """Return plain text version of the description (without HTML)"""
+        return strip_tags(obj.description) if obj.description else ""
 
 
 class ProductListSerializer(serializers.ModelSerializer):
     category_name = serializers.ReadOnlyField(source='category.name')
     primary_image = serializers.SerializerMethodField()
+    description_preview = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'slug', 'category_name', 'price',
-            'sale_price', 'primary_image', 'is_new', 'is_featured'
+            'sale_price', 'primary_image', 'is_new', 'is_featured',
+            'description_preview'
         ]
 
     def get_primary_image(self, obj):
-        primary_image = obj.images.filter(is_primary=True).first()
-        if primary_image:
-            return ProductImageSerializer(primary_image).data
+        """Get the primary image for the product"""
+        for variant in obj.variants.all():
+            for color in variant.colors.all():
+                primary_image = color.images.filter(is_primary=True).first()
+                if primary_image:
+                    return ProductImageSerializer(primary_image, context=self.context).data
         return None
 
+    def get_description_preview(self, obj):
+        """Get a plain text preview of the description"""
+        if not obj.description:
+            return ""
+        plain_text = strip_tags(obj.description)
+        if len(plain_text) > 150:
+            return plain_text[:147] + "..."
+        return plain_text
 
-# products/serializers.py
+
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
-    images = serializers.SerializerMethodField()
     variants = ProductVariantSerializer(many=True, read_only=True)
+    description_plain = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = [
-            'id', 'category', 'name', 'slug', 'sku', 'description',
+            'id', 'category', 'name', 'slug', 'sku', 'description', 'description_plain',
             'tech_specs', 'price', 'sale_price', 'is_new',
-            'is_featured', 'in_stock', 'stock_qty', 'images',
-            'variants', 'created_at', 'updated_at'
+            'is_featured', 'in_stock', 'stock_qty', 'variants',
+            'created_at', 'updated_at'
         ]
 
-    def get_images(self, obj):
-        # Group images - general product images and variant-specific images
-        result = {
-            'default': ProductImageSerializer(
-                obj.images.filter(variant__isnull=True),
-                many=True
-            ).data,
-            'variants': {}
-        }
-
-        # Add variant-specific images
-        for variant in obj.variants.all():
-            variant_images = obj.images.filter(variant=variant)
-            if variant_images.exists():
-                result['variants'][variant.id] = {
-                    'name': variant.name,
-                    'images': ProductImageSerializer(variant_images, many=True).data
-                }
-
-        return result
+    def get_description_plain(self, obj):
+        """Return plain text version of the description (without HTML)"""
+        return strip_tags(obj.description) if obj.description else ""
