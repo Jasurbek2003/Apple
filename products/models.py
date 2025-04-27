@@ -6,6 +6,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=120, unique=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='categories/', blank=True, null=True)
+    video = models.FileField(upload_to='videos/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

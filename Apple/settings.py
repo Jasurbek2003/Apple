@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'drf_yasg',
+    'tinymce',
 
     # Local apps
     'api.apps.ApiConfig',
@@ -245,3 +246,6 @@ REDOC_SETTINGS = {
     'EXPAND_RESPONSES': 'all',
     'PATH_IN_MIDDLE': False,
 }
+
+TINYMCE_JS_ROOT = os.path.join(BASE_DIR, "tinymce")
+TINYMCE_COMPRESSOR = True
