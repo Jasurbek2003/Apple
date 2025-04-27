@@ -151,7 +151,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'slug', 'sku', 'category', 'price', 'sale_price', 'icon'),
+            'fields': ('name', 'slug', 'sku', 'category', 'price', 'sale_price', 'icon', 'main_image'),
         }),
         ('Content', {
             'fields': ('description',),
@@ -202,7 +202,7 @@ class ProductVariantAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Variant Information', {
-            'fields': ('product', 'name', 'price', 'price_adjustment', 'is_active'),
+            'fields': ('product', 'name', 'price', 'price_adjustment', 'is_active', 'main_image'),
         }),
         ('Description', {
             'fields': ('description',),
