@@ -59,7 +59,6 @@ class ProductImages(models.Model):
         return f"Image for {self.product.name}"
 
     class Meta:
-        ordering = ['created_at']
         verbose_name_plural = 'Product Images'
 
 class ProductVariant(models.Model):

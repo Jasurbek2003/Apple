@@ -1,3 +1,4 @@
+# products/admin.py
 from django.contrib import admin
 from django.utils.html import format_html
 from django import forms
@@ -5,6 +6,7 @@ from tinymce.widgets import TinyMCE
 from .models import (
     Category,
     Product,
+    ProductImages,
     ProductVariant,
     ProductVariantColor,
     ProductImage,
@@ -46,6 +48,20 @@ class ProductVariantAdminForm(forms.ModelForm):
 
 
 # Inlines
+class ProductImagesInline(admin.TabularInline):
+    model = ProductImages
+    extra = 1
+    fields = ['image', 'alt_text', 'image_preview']
+    readonly_fields = ['image_preview']
+
+    def image_preview(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            return format_html('<img src="{}" width="100" height="auto" />', obj.image.url)
+        return "No image"
+
+    image_preview.short_description = 'Preview'
+
+
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
@@ -80,14 +96,15 @@ class ProductVariantColorInline(admin.TabularInline):
 class ProductVariantStorageInline(admin.TabularInline):
     model = ProductVariantStorage
     extra = 1
-    fields = ['storage_capacity', 'price_adjustment', 'is_active']
+    fields = ['storage_capacity', 'price_adjustment', 'price', 'is_active']
 
 
 class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
     form = ProductVariantAdminForm
     extra = 1
-    fields = ['name', 'price_adjustment', 'is_active', 'description']
+    fields = ['name', 'price_adjustment', 'price', 'is_active', 'description']
+    show_change_link = True
 
 
 # Main ModelAdmin classes
@@ -101,8 +118,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
     def description_preview(self, obj):
         if obj.description:
-            preview = obj.description[:50] + '...' if len(obj.description) > 50 else obj.description
-            return format_html(preview)
+            from django.utils.html import strip_tags
+            text = strip_tags(obj.description)
+            return text[:50] + '...' if len(text) > 50 else text
         return "-"
 
     description_preview.short_description = 'Description Preview'
@@ -124,24 +142,16 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     form = ProductAdminForm
-    list_display = ['name', 'category', 'price', 'is_new', 'is_featured', 'is_active', 'created_at',
-                    'description_preview']
-    list_filter = ['category', 'is_new', 'is_featured', 'is_active']
+    list_display = ['name', 'category', 'price', 'sku', 'is_active', 'created_at']
+    list_filter = ['category', 'is_active']
     search_fields = ['name', 'description', 'sku']
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ProductVariantInline]
-
-    def description_preview(self, obj):
-        if obj.description:
-            preview = obj.description[:50] + '...' if len(obj.description) > 50 else obj.description
-            return format_html(preview)
-        return "-"
-
-    description_preview.short_description = 'Description Preview'
+    inlines = [ProductImagesInline, ProductVariantInline]
+    save_on_top = True
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'slug', 'sku', 'category', 'price', 'sale_price'),
+            'fields': ('name', 'slug', 'sku', 'category', 'price', 'sale_price', 'icon'),
         }),
         ('Content', {
             'fields': ('description',),
@@ -152,15 +162,35 @@ class ProductAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
         }),
         ('Status', {
-            'fields': ('is_new', 'is_featured', 'is_active', 'in_stock', 'stock_qty'),
+            'fields': ('is_active',),
         }),
     )
+
+
+@admin.register(ProductImages)
+class ProductImagesAdmin(admin.ModelAdmin):
+    list_display = ['get_product_name', 'image_preview', 'alt_text']
+    search_fields = ['product__name', 'alt_text']
+    list_filter = ['product__category']
+    readonly_fields = ['image_preview']
+
+    def get_product_name(self, obj):
+        return obj.product.name
+
+    get_product_name.short_description = 'Product'
+
+    def image_preview(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            return format_html('<img src="{}" width="150" height="auto" />', obj.image.url)
+        return "No image"
+
+    image_preview.short_description = 'Preview'
 
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
     form = ProductVariantAdminForm
-    list_display = ['get_product_name', 'name', 'price_adjustment', 'is_active', 'description_preview']
+    list_display = ['get_product_name', 'name', 'price', 'price_adjustment', 'is_active']
     list_filter = ['is_active', 'product__category']
     search_fields = ['name', 'description', 'product__name']
     inlines = [ProductVariantColorInline, ProductVariantStorageInline]
@@ -170,17 +200,9 @@ class ProductVariantAdmin(admin.ModelAdmin):
 
     get_product_name.short_description = 'Product'
 
-    def description_preview(self, obj):
-        if obj.description:
-            preview = obj.description[:50] + '...' if len(obj.description) > 50 else obj.description
-            return format_html(preview)
-        return "-"
-
-    description_preview.short_description = 'Description Preview'
-
     fieldsets = (
         ('Variant Information', {
-            'fields': ('product', 'name', 'price_adjustment', 'is_active'),
+            'fields': ('product', 'name', 'price', 'price_adjustment', 'is_active'),
         }),
         ('Description', {
             'fields': ('description',),
@@ -252,7 +274,7 @@ class ProductImageAdmin(admin.ModelAdmin):
 
 @admin.register(ProductVariantStorage)
 class ProductVariantStorageAdmin(admin.ModelAdmin):
-    list_display = ['get_product', 'get_variant', 'storage_capacity', 'price_adjustment', 'is_active']
+    list_display = ['get_product', 'get_variant', 'storage_capacity', 'price', 'price_adjustment', 'is_active']
     list_filter = ['is_active', 'product_variant__product__category']
     search_fields = ['storage_capacity', 'product_variant__name', 'product_variant__product__name']
 
