@@ -92,7 +92,7 @@ class ProductListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug', 'category_name', 'price',
             'sale_price', 'primary_image', 'icon_url',
-            'description_preview'
+            'description_preview', 'main_image',
         ]
 
     def get_icon_url(self, obj):
@@ -138,7 +138,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'id', 'category', 'name', 'slug', 'sku', 'description',
             'description_plain', 'tech_specs', 'price', 'sale_price',
             'icon', 'icon_url', 'images', 'variants', 'created_at',
-            'updated_at'
+            'updated_at', 'main_image'
         ]
 
     def get_icon_url(self, obj):
