@@ -190,9 +190,10 @@ class ProductImagesAdmin(admin.ModelAdmin):
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
     form = ProductVariantAdminForm
-    list_display = ['get_product_name', 'name', 'price', 'price_adjustment', 'is_active']
+    list_display = ['get_product_name', 'name', 'price', 'price_adjustment', 'is_active', 'slug']
     list_filter = ['is_active', 'product__category']
     search_fields = ['name', 'description', 'product__name']
+    prepopulated_fields = {'slug': ('name',)}
     inlines = [ProductVariantColorInline, ProductVariantStorageInline]
 
     def get_product_name(self, obj):
@@ -202,7 +203,7 @@ class ProductVariantAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Variant Information', {
-            'fields': ('product', 'name', 'price', 'price_adjustment', 'is_active', 'main_image'),
+            'fields': ('product', 'name', 'price', 'price_adjustment', 'is_active', 'main_image', 'slug'),
         }),
         ('Description', {
             'fields': ('description',),
