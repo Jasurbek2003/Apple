@@ -65,6 +65,7 @@ class ProductImages(models.Model):
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)  # e.g., "Pro", "Pro max"
+    slug = models.SlugField(max_length=120, unique=True)
     price_adjustment = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     description = HTMLField(blank=True, null=True)  # Using TinyMCE HTMLField
@@ -75,6 +76,11 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.name}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 class ProductVariantColor(models.Model):
@@ -95,6 +101,8 @@ class ProductImage(models.Model):
 
     class Meta:
         ordering = ['is_primary', 'created_at']
+        verbose_name_plural = 'Product Variant Images'
+
 
     def __str__(self):
         return f"Image for {self.product_variant_color.product_variant.product.name} - {self.product_variant_color.color_name}"
