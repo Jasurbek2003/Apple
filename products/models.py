@@ -7,6 +7,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=120, unique=True)
     description = HTMLField(blank=True)  # Using TinyMCE HTMLField
     image = models.ImageField(upload_to='categories/', blank=True, null=True)
+    icon = models.ImageField(upload_to='categories/icons/', blank=True, null=True)
     video = models.FileField(upload_to='videos/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -17,7 +17,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'slug', 'description', 'description_plain', 'image', 'video', 'is_active']
+        fields = ['id', 'name', 'slug', 'description', 'description_plain', 'image', 'video', 'is_active', 'icon']
 
     def get_description_plain(self, obj):
         """Return plain text version of the description (without HTML)"""
