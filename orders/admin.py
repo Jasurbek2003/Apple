@@ -7,7 +7,7 @@ class CartItemInline(admin.TabularInline):
     extra = 0
 
 
-@admin.register(Cart)
+# @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'session_id', 'item_count', 'total_price', 'created_at']
     list_filter = ['created_at']
@@ -21,7 +21,7 @@ class OrderItemInline(admin.TabularInline):
     readonly_fields = ['product_name', 'product_variant', 'product_sku', 'unit_price', 'subtotal']
 
 
-@admin.register(Order)
+# @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['order_number', 'user', 'status', 'total_price', 'is_paid', 'created_at']
     list_filter = ['status', 'is_paid', 'created_at']
