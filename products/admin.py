@@ -1,4 +1,3 @@
-# products/admin.py
 from django.contrib import admin
 from django.utils.html import format_html
 from django import forms
@@ -103,7 +102,7 @@ class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
     form = ProductVariantAdminForm
     extra = 1
-    fields = ['name', 'price_adjustment', 'price', 'is_active', 'description']
+    fields = ['name', 'price_adjustment', 'price', 'is_active', 'description', 'main_image']
     show_change_link = True
 
 
@@ -151,15 +150,11 @@ class ProductAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'slug', 'sku', 'category', 'price', 'sale_price', 'icon', 'main_image', 'icon'),
+            'fields': ('name', 'slug', 'sku', 'category', 'price', 'sale_price', 'icon', 'main_image',),
         }),
         ('Content', {
             'fields': ('description',),
             'classes': ('wide', 'extrapretty'),
-        }),
-        ('Technical Details', {
-            'fields': ('tech_specs',),
-            'classes': ('collapse',),
         }),
         ('Status', {
             'fields': ('is_active',),
@@ -167,7 +162,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(ProductImages)
+# @admin.register(ProductImages)
 class ProductImagesAdmin(admin.ModelAdmin):
     list_display = ['get_product_name', 'image_preview', 'alt_text']
     search_fields = ['product__name', 'alt_text']
@@ -194,7 +189,7 @@ class ProductVariantAdmin(admin.ModelAdmin):
     list_filter = ['is_active', 'product__category']
     search_fields = ['name', 'description', 'product__name']
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ProductVariantColorInline, ProductVariantStorageInline]
+    inlines = [ProductVariantColorInline]
 
     def get_product_name(self, obj):
         return obj.product.name
@@ -218,7 +213,7 @@ class ProductVariantColorAdmin(admin.ModelAdmin):
     list_filter = ['product_variant__product__category', 'product_variant']
     search_fields = ['color_name', 'product_variant__name', 'product_variant__product__name']
     readonly_fields = ['color_preview']
-    inlines = [ProductImageInline]
+    inlines = [ProductImageInline, ProductVariantStorageInline]
 
     def get_product(self, obj):
         return obj.product_variant.product.name
@@ -241,7 +236,7 @@ class ProductVariantColorAdmin(admin.ModelAdmin):
     color_preview.short_description = 'Color'
 
 
-@admin.register(ProductImage)
+# @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = ['get_product', 'get_variant', 'get_color', 'is_primary', 'image_preview']
     list_filter = ['is_primary', 'product_variant_color__product_variant__product__category']
@@ -276,15 +271,16 @@ class ProductImageAdmin(admin.ModelAdmin):
 @admin.register(ProductVariantStorage)
 class ProductVariantStorageAdmin(admin.ModelAdmin):
     list_display = ['get_product', 'get_variant', 'storage_capacity', 'price', 'price_adjustment', 'is_active']
-    list_filter = ['is_active', 'product_variant__product__category']
-    search_fields = ['storage_capacity', 'product_variant__name', 'product_variant__product__name']
+    list_filter = ['is_active', 'product_variant__product_variant__product']
+    search_fields = ['storage_capacity', 'product_variant__color_name', 'product_variant__product_variant__name']
 
     def get_product(self, obj):
-        return obj.product_variant.product.name
+        return obj.product_variant.product_variant.name
 
     get_product.short_description = 'Product'
 
     def get_variant(self, obj):
-        return obj.product_variant.name
+        return obj.product_variant.product_variant
+
 
     get_variant.short_description = 'Variant'
