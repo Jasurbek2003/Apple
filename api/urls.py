@@ -117,7 +117,7 @@ urlpatterns = [
 
     # Include app-specific endpoints
     path('products/', include('products.urls')),
-    # path('users/', include('users.urls')),
+    path('users/', include('users.urls')),
     # path('', include('orders.urls')),
 
     # path('search/', views.search, name='search'),
