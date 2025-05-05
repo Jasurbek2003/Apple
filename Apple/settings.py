@@ -237,7 +237,7 @@ SWAGGER_SETTINGS = {
     'OPERATIONS_SORTER': 'alpha',
     'TAGS_SORTER': 'alpha',
     'DOC_EXPANSION': 'list',
-    'DEFAULT_API_URL': 'http://localhost:8000',
+    'DEFAULT_API_URL': 'http://209.38.109.8',
     'PERSIST_AUTH': True,
     'REFETCH_SCHEMA_WITH_AUTH': True,
     'FETCH_SCHEMA_WITH_QUERY': True,
