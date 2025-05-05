@@ -284,3 +284,4 @@ class ProductVariantStorageAdmin(admin.ModelAdmin):
 
 
     get_variant.short_description = 'Variant'
+
