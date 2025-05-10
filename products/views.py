@@ -125,7 +125,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                 'images',
                 'variants',
                 'variants__colors',
-                'variants__storage',
+                # 'variants__storage',
                 'variants__colors__images',
             )
 
