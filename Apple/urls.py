@@ -11,6 +11,7 @@ from .swagger import swagger_urlpatterns
 urlpatterns = [
     # API endpoints (without language prefix)
     path('api/v1/', include('api.urls')),
+    path('accounts/', include('allauth.urls')),
     path('tinymce/', include('tinymce.urls')),
     *swagger_urlpatterns,
 

@@ -1,4 +1,7 @@
+import json
+
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view, permission_classes
@@ -239,3 +242,54 @@ def search_autocomplete(request):
     all_suggestions = list(suggestions) + [f"Category: {cat}" for cat in category_suggestions]
 
     return Response(all_suggestions)
+
+#
+# @csrf_exempt
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def google_login(request):
+#     data = json.loads(request.body)
+#     id_token = data.get('id_token')
+#
+#     # Verify the token with Google
+#     try:
+#         from google.oauth2 import id_token
+#         from google.auth.transport import requests
+#
+#         idinfo = id_token.verify_oauth2_token(
+#             id_token, requests.Request(), 'YOUR_GOOGLE_CLIENT_ID')
+#
+#         # Get or create user
+#         email = idinfo['email']
+#         user = User.objects.filter(email=email).first()
+#
+#         if not user:
+#             # Create a new user
+#             user = User.objects.create_user(
+#                 username=email,
+#                 email=email,
+#                 # Additional fields as needed
+#             )
+#
+#             # Create social account
+#             SocialAccount.objects.create(
+#                 user=user,
+#                 provider='google',
+#                 uid=idinfo['sub'],
+#                 extra_data=idinfo
+#             )
+#
+#         # Log the user in
+#         login(request, user)
+#
+#         # Create or get auth token
+#         token, created = Token.objects.get_or_create(user=user)
+#
+#         return JsonResponse({
+#             'token': token.key,
+#             'user_id': user.id,
+#             'email': user.email
+#         })
+#
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=400)
