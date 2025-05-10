@@ -138,7 +138,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'id', 'category', 'name', 'slug', 'sku', 'description',
             'description_plain', 'price', 'sale_price',
             'icon', 'icon_url', 'images', 'variants', 'created_at',
-            'updated_at', 'main_image'
+            'updated_at', 'main_image_phone', 'main_image_tablet', 'main_image_desktop'
         ]
 
     def get_icon_url(self, obj):
