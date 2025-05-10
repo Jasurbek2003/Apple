@@ -150,7 +150,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'slug', 'sku', 'category', 'price', 'sale_price', 'icon', 'main_image',),
+            'fields': ('name', 'slug', 'sku', 'category', 'price', 'sale_price', 'icon', 'main_image_desktop', 'main_image_tablet', 'main_image_phone',),
         }),
         ('Content', {
             'fields': ('description',),

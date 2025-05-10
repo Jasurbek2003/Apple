@@ -92,7 +92,7 @@ class ProductListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug', 'category_name', 'price',
             'sale_price', 'primary_image', 'icon_url',
-            'description_preview', 'main_image',
+            'description_preview', 'main_image_desktop', 'main_image_tablet', 'main_image_phone',
         ]
 
     def get_icon_url(self, obj):
