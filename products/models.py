@@ -31,7 +31,9 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True)
     sku = models.CharField(max_length=20, unique=True)
-    main_image = models.ImageField(upload_to='products/', blank=True, null=True)
+    main_image_desktop = models.ImageField(upload_to='products/', blank=True, null=True)
+    main_image_tablet = models.ImageField(upload_to='products/', blank=True, null=True)
+    main_image_phone = models.ImageField(upload_to='products/', blank=True, null=True)
     description = HTMLField()  # Using TinyMCE HTMLField
     # tech_specs = models.JSONField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
