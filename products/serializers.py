@@ -40,7 +40,7 @@ class ProductImagesSerializer(serializers.ModelSerializer):
 class ProductVariantStorageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariantStorage
-        fields = ['id', 'storage_capacity', 'price_adjustment', 'price', 'is_active']
+        fields = ['id', 'storage_capacity', 'price_adjustment', 'price', 'is_active', 'product_variant']
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
