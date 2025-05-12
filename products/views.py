@@ -256,11 +256,18 @@ class ProductVariantStorageViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        variant_id = self.request.query_params.get('variant_id')
-        if variant_id:
-            return ProductVariantStorage.objects.filter(product_variant_id=variant_id, is_active=True)
-        return ProductVariantStorage.objects.filter(is_active=True)
+        queryset = ProductVariantStorage.objects.filter(is_active=True)
 
+        variant_id = self.request.query_params.get('variant_id')
+        color_id = self.request.query_params.get('color_id')
+
+        if variant_id:
+            queryset = queryset.filter(product_variant__product_variant_id=variant_id, is_active=True)
+
+        if color_id:
+            queryset = queryset.filter(product_variant_id=color_id, is_active=True)
+
+        return queryset
 
 @csrf_exempt
 @login_required
