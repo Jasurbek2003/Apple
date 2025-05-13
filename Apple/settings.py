@@ -31,6 +31,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://mail.nj2003.uz',
     'https://admin.nj2003.uz',
     'https://nj2003.uz',
+    'https://apple-uzb-omega.vercel.app/',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -43,6 +44,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://mail.nj2003.uz',
     'https://admin.nj2003.uz',
     'https://nj2003.uz',
+    'https://apple-uzb-omega.vercel.app/',
 ]
 
 
