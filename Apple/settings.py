@@ -20,7 +20,7 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '209.38.109.8']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '209.38.109.8', 'nj2003.uz', 'mail.nj2003.uz', 'admin.nj2003.uz']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -28,6 +28,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:8000",
     'http://209.38.109.8',
+    'https://mail.nj2003.uz',
+    'https://admin.nj2003.uz',
+    'https://nj2003.uz',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -37,6 +40,9 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1"
     'http://209.38.109.8',
+    'https://mail.nj2003.uz',
+    'https://admin.nj2003.uz',
+    'https://nj2003.uz',
 ]
 
 
